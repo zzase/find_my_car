@@ -6,6 +6,8 @@ from darkflow.net.build import TFNet
 import threading
 import os, io
 
+import firebase
+
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "path of google_jason"
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
@@ -74,7 +76,7 @@ def find_recent_video():
     # 생성시간 역순으로 정렬
     sorted_file_list = sorted(file_list, key=lambda x: x[1], reverse=True)
     # 가장 앞에있는 파일을 넣어줌
-    recent_file = sorted_file_list[1]
+    recent_file = sorted_file_list[0]
     recent_file_name = recent_file[0]
     check_video_path = files_path + str(recent_file_name)
 
@@ -203,7 +205,7 @@ def Out_In_decision():
 def reversePlay_OnlyCapture():
     listNumber = 1
     captureCount = 1
-    capture = cv2.VideoCapture('C:\\HC\\videoList\\test.mp4')
+    capture = cv2.VideoCapture(find_recent_video())
 
     # check for camera openning
     if capture.isOpened() is False:
@@ -226,12 +228,15 @@ def reversePlay_OnlyCapture():
 
             # cv2.imshow('Frame in Reverse', frame)
 
-            cv2.imwrite("C:\\HC\\onlyCaptureList\\" + "onlyCapture_" + str(listNumber) + ".jpg", frame)
+            cv2.imwrite("C:\\HC\\imgList\\" + "test_" + str(listNumber) + ".jpg", frame)
+            fw = open('C:\\HC\\afterCrop\\ocr' + str(listNumber) + '.text', 'w', -1, "utf-8")
+            fw.write("parknum is not found")
             captureCount += 1
             listNumber += 1
 
             # 사진을 3개저장하면종료.
             if captureCount > 3:
+                fw.close()
                 break;
 
             # 프레임을 뒤로 감소시키며 거꾸로 재생
@@ -270,6 +275,6 @@ def main():
     # Release the VideoCapture object:
     capture.release()
     cv2.destroyAllWindows()
+    firebase.main()
 
 main()
-
